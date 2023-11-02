@@ -1,0 +1,8 @@
+target/*
+.idea/*
+
+todo/*
+todo
+
+/plugin/target/*
+/chest-api/target/*
