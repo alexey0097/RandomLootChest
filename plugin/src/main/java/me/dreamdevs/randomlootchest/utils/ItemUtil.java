@@ -62,8 +62,7 @@ public class ItemUtil {
                 }
 
                 itemMeta.setUnbreakable(unbreakable);
-                if (glowing) {
-                    itemMeta.addEnchant(Enchantment.LUCK, 1, true);
+                if (!glowing) {
                     itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
 

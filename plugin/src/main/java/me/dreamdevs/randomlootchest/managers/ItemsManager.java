@@ -137,7 +137,7 @@ public class ItemsManager {
                     itemSection.set("DisplayLore", itemMeta.getLore());
                 }
                 itemSection.set("Unbreakable", itemMeta.isUnbreakable());
-                itemSection.set("Glowing", itemMeta.getItemFlags().contains(ItemFlag.HIDE_ENCHANTS));
+                itemSection.set("Glowing", !itemMeta.getItemFlags().contains(ItemFlag.HIDE_ENCHANTS));
                 if (itemMeta.hasEnchants()) {
                     ConfigurationSection enchantmentSection = itemSection.createSection("Enchantments");
                     for (Map.Entry<Enchantment, Integer> entry : itemMeta.getEnchants().entrySet()) {
