@@ -16,11 +16,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class ItemsManager {
 
@@ -57,7 +58,7 @@ public class ItemsManager {
                     }
                 }
 
-                String base64 = itemsSection.getString(string+".Base64", null);
+                String base64 = itemsSection.getString(string+".Model", null);
 
                 ItemStack itemStack = null;
 
@@ -67,19 +68,14 @@ public class ItemsManager {
                         Util.sendPluginMessage("itemStack = " + itemStack);
                     } catch (IOException e) {
                         Util.sendPluginMessage("error = " + e.getMessage());
-                        itemStack = ItemUtil.parsedItem(itemsSection.getString(string+".Material","STONE"),
-                                itemsSection.getInt(string+".Amount",1), itemsSection.getString(string+".DisplayName"),
-                                itemsSection.getStringList(string+".DisplayLore"), enchantments,
-                                itemsSection.getBoolean(string+".Unbreakable", false), itemsSection.getBoolean(string+".Glowing",false));
-
                     }
-                } else {
-                    itemStack = ItemUtil.parsedItem(itemsSection.getString(string+".Material","STONE"),
-                            itemsSection.getInt(string+".Amount",1), itemsSection.getString(string+".DisplayName"),
-                            itemsSection.getStringList(string+".DisplayLore"), enchantments,
-                            itemsSection.getBoolean(string+".Unbreakable", false), itemsSection.getBoolean(string+".Glowing",false));
-
                 }
+
+                itemStack = ItemUtil.parsedItem(itemStack, itemsSection.getString(string+".Material","STONE"),
+                        itemsSection.getInt(string+".Amount",1), itemsSection.getString(string+".DisplayName"),
+                        itemsSection.getStringList(string+".DisplayLore"), enchantments,
+                        itemsSection.getBoolean(string+".Unbreakable", false), itemsSection.getBoolean(string+".Glowing",false));
+
 
                 ItemMeta meta = itemStack.getItemMeta();
 
@@ -98,7 +94,7 @@ public class ItemsManager {
                     });
 
                 }
-                items.put(string, new RandomItem(itemStack, section.get().getDouble(string+".Chance", 0.9)));
+                items.put(string, new RandomItem(itemStack, section.get().getDouble(string+".Chance", 1.00)));
             }));
         }
 
@@ -112,10 +108,19 @@ public class ItemsManager {
 
             ItemStack itemStack = randomItem.getItemStack();
 
-            String base64 = InventorySerializerUtil.toBase64Item(itemStack);
-            Util.sendPluginMessage("base64 = " + base64);
+            File dir = new File(plugin.getDataFolder(), "data");
+            if (!dir.exists()) dir.mkdirs();
 
-            itemSection.set("Base64", base64);
+            File file = new File(dir,  itemSection.getName());
+            try {
+                Files.deleteIfExists(file.getAbsoluteFile().toPath());
+            } catch (IOException e) {
+                Util.sendPluginMessage("ex = " + e.getMessage());
+            }
+
+            InventorySerializerUtil.saveBase64Item(itemStack, file);
+
+            itemSection.set("Model", file.getPath());
             itemSection.set("Material", itemStack.getType().name());
             itemSection.set("Amount", itemStack.getAmount());
             ItemMeta itemMeta = itemStack.getItemMeta();

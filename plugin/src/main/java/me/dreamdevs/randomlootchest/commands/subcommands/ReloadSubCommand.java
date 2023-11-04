@@ -26,8 +26,8 @@ public class ReloadSubCommand implements ArgumentCommand {
                 Language.reloadLanguage();
                 RandomLootChestMain.getInstance().getChestsManager().load(RandomLootChestMain.getInstance());
                 RandomLootChestMain.getInstance().getLocationManager().save(RandomLootChestMain.getInstance());
-                RandomLootChestMain.getInstance().getItemsManager().save(RandomLootChestMain.getInstance());
                 RandomLootChestMain.getInstance().getItemsManager().load(RandomLootChestMain.getInstance());
+                RandomLootChestMain.getInstance().getItemsManager().save(RandomLootChestMain.getInstance());
                 WandItem.loadVars();
                 commandSender.sendMessage(Language.COMMAND_RELOAD_FILES.toString());
                 return true;
@@ -50,8 +50,8 @@ public class ReloadSubCommand implements ArgumentCommand {
                 return true;
             }
             if(args[1].equalsIgnoreCase("items")) {
-                RandomLootChestMain.getInstance().getItemsManager().save(RandomLootChestMain.getInstance());
                 RandomLootChestMain.getInstance().getItemsManager().load(RandomLootChestMain.getInstance());
+                RandomLootChestMain.getInstance().getItemsManager().save(RandomLootChestMain.getInstance());
                 commandSender.sendMessage(Language.COMMAND_RELOAD_ITEMS.toString());
                 return true;
             }

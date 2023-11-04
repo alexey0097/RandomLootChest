@@ -91,7 +91,7 @@ public class ChestsManager {
 
             for(String content : config.getConfigurationSection(CONTENTS).getKeys(false)) {
                 try {
-                    String base64 = Objects.requireNonNull(config.getString(CONTENTS + "." + content + ".Base64")).toUpperCase();
+                    String base64 = Objects.requireNonNull(config.getString(CONTENTS + "." + content + ".Model")).toUpperCase();
 
                     ItemStack itemStack = null;
 
@@ -100,57 +100,35 @@ public class ChestsManager {
                             itemStack = InventorySerializerUtil.fromBase64Item(base64);
                             Util.sendPluginMessage("itemStack = " + itemStack);
                         } catch (IOException ex) {
-                            String material = Objects.requireNonNull(config.getString(CONTENTS + "." + content + ".Material")).toUpperCase();
-                            String displayName =  config.getString(CONTENTS+"."+content+".DisplayName", null);
-                            int amount = config.getInt(CONTENTS+"."+content+".Amount", 1);
-                            List<String> lore = new ArrayList<>();
-                            if(config.get(CONTENTS+"."+content+".DisplayLore") != null)
-                                lore = config.getStringList(CONTENTS+"."+content+".DisplayLore");
-
-                            Map<String, Integer> enchantments = new HashMap<>();
-                            if(config.get(CONTENTS+"."+content+".Enchantments") != null) {
-                                ConfigurationSection enchantmentSection = config.getConfigurationSection(CONTENTS+"."+content+".Enchantments");
-                                for(String key : enchantmentSection.getKeys(false))
-                                    enchantments.put(key.toUpperCase(), enchantmentSection.getInt(key));
-                            }
-
-                            boolean unbreakable = config.getBoolean(CONTENTS+"."+content+".Unbreakable", false);
-                            boolean glowing = config.getBoolean(CONTENTS+"."+content+".Glowing", false);
-                            itemStack = ItemUtil.parsedItem(material, amount, displayName, lore, enchantments, unbreakable, glowing);
-
-                            if(material.contains("potion".toUpperCase())) {
-                                itemStack = ItemUtil.getPotion(material, amount, displayName, lore, enchantments, unbreakable, glowing,
-                                        config.getString(CONTENTS+"."+content+".PotionEffect", "AWKWARD"),
-                                        config.getBoolean(CONTENTS+"."+content+".Extended", false), config.getBoolean(CONTENTS+"."+content+".Upgraded", false));
-                            }
-                        }
-                    } else {
-                        String material = Objects.requireNonNull(config.getString(CONTENTS + "." + content + ".Material")).toUpperCase();
-                        String displayName =  config.getString(CONTENTS+"."+content+".DisplayName", null);
-                        int amount = config.getInt(CONTENTS+"."+content+".Amount", 1);
-                        List<String> lore = new ArrayList<>();
-                        if(config.get(CONTENTS+"."+content+".DisplayLore") != null)
-                            lore = config.getStringList(CONTENTS+"."+content+".DisplayLore");
-
-                        Map<String, Integer> enchantments = new HashMap<>();
-                        if(config.get(CONTENTS+"."+content+".Enchantments") != null) {
-                            ConfigurationSection enchantmentSection = config.getConfigurationSection(CONTENTS+"."+content+".Enchantments");
-                            for(String key : enchantmentSection.getKeys(false))
-                                enchantments.put(key.toUpperCase(), enchantmentSection.getInt(key));
-                        }
-
-                        boolean unbreakable = config.getBoolean(CONTENTS+"."+content+".Unbreakable", false);
-                        boolean glowing = config.getBoolean(CONTENTS+"."+content+".Glowing", false);
-                        itemStack = ItemUtil.parsedItem(material, amount, displayName, lore, enchantments, unbreakable, glowing);
-
-                        if(material.contains("potion".toUpperCase())) {
-                            itemStack = ItemUtil.getPotion(material, amount, displayName, lore, enchantments, unbreakable, glowing,
-                                    config.getString(CONTENTS+"."+content+".PotionEffect", "AWKWARD"),
-                                    config.getBoolean(CONTENTS+"."+content+".Extended", false), config.getBoolean(CONTENTS+"."+content+".Upgraded", false));
+                            Util.sendPluginMessage("error = " + ex.getMessage());
                         }
                     }
 
-                    RandomItem randomItem = new RandomItem(itemStack, config.getDouble(CONTENTS+"."+content+".Chance"));
+                    String material = Objects.requireNonNull(config.getString(CONTENTS + "." + content + ".Material")).toUpperCase();
+                    String displayName =  config.getString(CONTENTS+"."+content+".DisplayName", null);
+                    int amount = config.getInt(CONTENTS+"."+content+".Amount", 1);
+                    List<String> lore = new ArrayList<>();
+                    if(config.get(CONTENTS+"."+content+".DisplayLore") != null)
+                        lore = config.getStringList(CONTENTS+"."+content+".DisplayLore");
+
+                    Map<String, Integer> enchantments = new HashMap<>();
+                    if(config.get(CONTENTS+"."+content+".Enchantments") != null) {
+                        ConfigurationSection enchantmentSection = config.getConfigurationSection(CONTENTS+"."+content+".Enchantments");
+                        for(String key : enchantmentSection.getKeys(false))
+                            enchantments.put(key.toUpperCase(), enchantmentSection.getInt(key));
+                    }
+
+                    boolean unbreakable = config.getBoolean(CONTENTS+"."+content+".Unbreakable", false);
+                    boolean glowing = config.getBoolean(CONTENTS+"."+content+".Glowing", false);
+                    itemStack = ItemUtil.parsedItem(itemStack, material, amount, displayName, lore, enchantments, unbreakable, glowing);
+
+                    if(material.contains("potion".toUpperCase())) {
+                        itemStack = ItemUtil.getPotion(itemStack, material, amount, displayName, lore, enchantments, unbreakable, glowing,
+                                config.getString(CONTENTS+"."+content+".PotionEffect", "AWKWARD"),
+                                config.getBoolean(CONTENTS+"."+content+".Extended", false), config.getBoolean(CONTENTS+"."+content+".Upgraded", false));
+                    }
+
+                    RandomItem randomItem = new RandomItem(itemStack, config.getDouble(CONTENTS+"."+content+".Chance", 1.00));
                     chestGame.getItemStacks().add(randomItem);
                 } catch (NullPointerException e) {
                     // Continues and throws an information about wrong configured item.
@@ -207,18 +185,13 @@ public class ChestsManager {
         int counter = 0;
 
         for (IRandomItem randomItem : chestGame.getItemStacks()) {
-            Util.sendPluginMessage("randomItem.getItemStack().getItemMeta().getDisplayName(): "+randomItem.getItemStack().getItemMeta().getDisplayName());
             if (counter == chestGame.getMaxItems()) {
-                Util.sendPluginMessage("chestGame.getMaxItems() ");
                 break;
             }
-            Util.sendPluginMessage("randomItem.getChance()  " + randomItem.getChance());
             if (!Util.chance(randomItem.getChance())) {
-                Util.sendPluginMessage("!Util.chance(randomItem.getChance()) ");
                 continue;
             }
             int max = chestGame.getMaxItemsInTheSameType();
-            Util.sendPluginMessage("getMaxItemsInTheSameType: "+max);
 
             if (max > 0) {
                 int i = 0;
@@ -229,18 +202,15 @@ public class ChestsManager {
                         i++;
                     }
                 }
-                Util.sendPluginMessage("getMaxItemsInTheSameType: i < max) "+i);
                 if (i < max) {
                     inventory.setItem(Util.randomSlot(27), randomItem.getItemStack());
                     counter++;
                 }
             } else {
-                Util.sendPluginMessage("inventory.setItem(Util.randomSlot(27), randomItem.getItemStack()); ");
                 inventory.setItem(Util.randomSlot(27), randomItem.getItemStack());
                 counter++;
             }
         }
-        Util.sendPluginMessage("inventory.getSize() " + inventory.getSize());
 
         ChestOpenEvent chestOpenEvent = new ChestOpenEvent(player, chestGame);
         Bukkit.getPluginManager().callEvent(chestOpenEvent);

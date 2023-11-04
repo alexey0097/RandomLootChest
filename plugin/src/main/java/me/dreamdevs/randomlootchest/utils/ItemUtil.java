@@ -24,18 +24,21 @@ public class ItemUtil {
 
     private final String parseError = "&cCannot parse item with type: %MATERIAL%";
 
-    public static ItemStack parsedBasicItem(String material, int amount) {
+    public static ItemStack parsedBasicItem(ItemStack itemStack, String material, int amount) {
         try {
-            return new ItemStack(Objects.requireNonNull(Material.getMaterial(material.toUpperCase())), amount);
+            if (Objects.isNull(itemStack)) return new ItemStack(Objects.requireNonNull(Material.getMaterial(material.toUpperCase())), amount);
+            itemStack.setType(Objects.requireNonNull(Material.getMaterial(material.toUpperCase())));
+            itemStack.setAmount(amount);
+            return itemStack;
         } catch (NullPointerException e) {
             Util.sendPluginMessage(parseError.replace("%MATERIAL%", material));
             return null;
         }
     }
 
-    public static ItemStack parsedItem(@NotNull String material, int amount, String displayName, List<String> lore, Map<String, Integer> enchantments, boolean unbreakable, boolean glowing) {
+    public static ItemStack parsedItem(ItemStack item, @NotNull String material, int amount, String displayName, List<String> lore, Map<String, Integer> enchantments, boolean unbreakable, boolean glowing) {
         try {
-            Optional<ItemStack> optionalItemStack = Optional.ofNullable(parsedBasicItem(material, amount));
+            Optional<ItemStack> optionalItemStack = Optional.ofNullable(parsedBasicItem(item, material, amount));
 
             if (optionalItemStack.isEmpty()) {
                 Util.sendPluginMessage(parseError.replace("%MATERIAL%", material));
@@ -70,12 +73,15 @@ public class ItemUtil {
                     itemStack.setItemMeta(storageMeta);
                 }
 
-                if (!material.equalsIgnoreCase("ENCHANTED_BOOK")) {
-                    enchantments.forEach((key, value) -> itemStack.addUnsafeEnchantment(Enchantment.getByName(key), value));
-                    itemStack.setItemMeta(itemMeta);
+                try {
+                    if (!material.equalsIgnoreCase("ENCHANTED_BOOK")) {
+                        enchantments.forEach((key, value) -> itemStack.addUnsafeEnchantment(Enchantment.getByName(key), value));
+                        itemStack.setItemMeta(itemMeta);
+                    }
+                } catch (Exception exx) {
+                    Util.sendPluginMessage("error = " + exx.getMessage());
                 }
             }
-
             return itemStack;
         } catch (Exception e) {
             Util.sendPluginMessage(parseError.replace("%MATERIAL%", material));
@@ -83,9 +89,9 @@ public class ItemUtil {
         }
     }
 
-    public static ItemStack getPotion(String material, int amount, String displayName, List<String> lore, Map<String, Integer> enchantments, boolean unbreakable, boolean glowing, String potionType, boolean extended, boolean upgraded) {
+    public static ItemStack getPotion(ItemStack item, String material, int amount, String displayName, List<String> lore, Map<String, Integer> enchantments, boolean unbreakable, boolean glowing, String potionType, boolean extended, boolean upgraded) {
         try {
-            ItemStack itemStack = parsedItem(material, amount, displayName, lore, enchantments, unbreakable, glowing);
+            ItemStack itemStack = parsedItem(item, material, amount, displayName, lore, enchantments, unbreakable, glowing);
             PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
             PotionType potionTypeObj = PotionType.valueOf(potionType.toUpperCase());
             PotionData potionData = new PotionData(potionTypeObj, extended, upgraded);

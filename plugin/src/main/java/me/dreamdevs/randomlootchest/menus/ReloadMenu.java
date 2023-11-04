@@ -20,8 +20,8 @@ public class ReloadMenu extends ItemMenu {
 			event.setWillClose(true);
 			Config.reloadFile();
 			RandomLootChestMain.getInstance().loadConfig();
-			RandomLootChestMain.getInstance().getItemsManager().save(RandomLootChestMain.getInstance());
 			RandomLootChestMain.getInstance().getItemsManager().load(RandomLootChestMain.getInstance());
+			RandomLootChestMain.getInstance().getItemsManager().save(RandomLootChestMain.getInstance());
 			Language.reloadLanguage();
 			RandomLootChestMain.getInstance().loadLanguage();
 			RandomLootChestMain.getInstance().getChestsManager().load(RandomLootChestMain.getInstance());
@@ -37,6 +37,7 @@ public class ReloadMenu extends ItemMenu {
 
 		MenuItem reloadChestsItem = new ActionMenuItem(Language.MENU_CHEST_RELOAD_ALL_CHESTS.toString(), event -> {
 			event.setWillClose(true);
+			RandomLootChestMain.getInstance().getItemsManager().load(RandomLootChestMain.getInstance());
 			RandomLootChestMain.getInstance().getChestsManager().load(RandomLootChestMain.getInstance());
 			event.getPlayer().sendMessage(Language.COMMAND_RELOAD_CHESTS.toString());
 		}, new ItemStack(Material.CHEST));
@@ -50,8 +51,8 @@ public class ReloadMenu extends ItemMenu {
 		}, new ItemStack(Material.REPEATER));
 
 		MenuItem reloadItemsItem = new ActionMenuItem(Language.MENU_CHEST_RELOAD_ITEMS.toString(), event -> {
-			RandomLootChestMain.getInstance().getItemsManager().save(RandomLootChestMain.getInstance());
 			RandomLootChestMain.getInstance().getItemsManager().load(RandomLootChestMain.getInstance());
+			RandomLootChestMain.getInstance().getItemsManager().save(RandomLootChestMain.getInstance());
 			event.getPlayer().sendMessage(Language.COMMAND_RELOAD_ITEMS.toString());
 		}, new ItemStack(Material.DIAMOND_SWORD));
 

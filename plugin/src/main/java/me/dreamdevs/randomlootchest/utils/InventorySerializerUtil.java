@@ -8,9 +8,7 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 public class InventorySerializerUtil {
 
@@ -20,15 +18,14 @@ public class InventorySerializerUtil {
      * @param inventory to serialize
      * @return Base64 string of the provided inventory
      */
-    public static String toBase64Item(ItemStack item) throws IllegalStateException {
+    public static void saveBase64Item(ItemStack item, File file) throws IllegalStateException {
         try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            FileOutputStream outputStream = new FileOutputStream(file);
             BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
 
             dataOutput.writeObject(item);
 
             dataOutput.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
         } catch (Exception e) {
             throw new IllegalStateException("Unable to save item stacks.", e);
         }
@@ -41,9 +38,9 @@ public class InventorySerializerUtil {
      * @param data Base64 string of data containing an inventory.
      * @return Inventory created from the Base64 string.
      */
-    public static ItemStack fromBase64Item(String data) throws IOException {
+    public static ItemStack fromBase64Item(String path) throws IOException {
         try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+            FileInputStream inputStream = new FileInputStream(path);
             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
 
             ItemStack itemStack = (ItemStack) dataInput.readObject();
